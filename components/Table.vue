@@ -1,65 +1,87 @@
 <template>
   <div>
-    <a-button class="editable-add-btn" @click="handleAdd">Add</a-button>
+    <h2>Stored data</h2>
     <a-table bordered :dataSource="dataSource" :columns="columns">
-      <template slot="name" slot-scope="text, record">
-        <editable-cell :text="text" @change="onCellChange(record.key, 'name', $event)" />
-      </template>
       <template slot="operation" slot-scope="text, record">
         <a-popconfirm
           v-if="dataSource.length"
           title="Sure to delete?"
-          @confirm="() => onDelete(record.key)"
+          v-on:confirm="() => onDelete(record.key)"
         >
           <a href="javascript:;">Delete</a>
         </a-popconfirm>
       </template>
     </a-table>
+    <a-divider></a-divider>
+    <h2>Would you like to add a new row?</h2>
+    <div style="display: flex; flex-direction: row; margin-bottom: 240px;">
+      <div style="margin-bottom: 10px; margin-right: 10px;">
+        <a-input
+          style="width: 260px;"
+          autosize="true"
+          addonBefore="Domain"
+          defaultValue="Stonegrey"
+          :maxlength="max"
+          v-model="domainToAdd"
+        />
+      </div>
+      <div style="margin-bottom: 10px; margin-right: 10px;">
+        <a-input
+          style="width: 260px;"
+          autosize="true"
+          addonBefore="Range"
+          defaultValue="Dark Grey"
+          :maxlength="max"
+          v-model="rangeToAdd"
+        />
+      </div>
+      <a-button type="primary" class="editable-add-btn" v-on:click="handleAdd">Add</a-button>
+    </div>
   </div>
 </template>
 <script>
-import { EditableCell } from "@/plugins/antd-ui";
-/*
- * EditableCell Code t
- */
 export default {
-  components: {
-    EditableCell
-  },
+  components: {},
   data() {
     return {
+      max: 26,
+      domainToAdd: "Stonegrey",
+      rangeToAdd: "Dark Grey",
+      count: 4,
       dataSource: [
         {
-          key: "0",
-          name: "Edward King 0",
-          age: "32",
-          address: "London, Park Lane no. 0"
+          domain: "Stonegrey",
+          range: "Dark Grey",
+          key: 1
         },
         {
-          key: "1",
-          name: "Edward King 1",
-          age: "32",
-          address: "London, Park Lane no. 1"
+          domain: "Midnight Black",
+          range: "Black",
+          key: 2
+        },
+        {
+          domain: "Mystic Silver",
+          range: "Silver",
+          key: 3
         }
       ],
-      count: 2,
       columns: [
         {
-          title: "name",
-          dataIndex: "name",
+          title: "Domain",
+          dataIndex: "domain",
           width: "30%",
-          scopedSlots: { customRender: "name" }
+          scopedSlots: { customRender: "domain" }
         },
         {
-          title: "age",
-          dataIndex: "age"
+          title: "Range",
+          dataIndex: "range"
         },
         {
-          title: "address",
-          dataIndex: "address"
+          title: "Valid?",
+          dataIndex: "valid"
         },
         {
-          title: "operation",
+          title: "",
           dataIndex: "operation",
           scopedSlots: { customRender: "operation" }
         }
@@ -80,15 +102,51 @@ export default {
       this.dataSource = dataSource.filter(item => item.key !== key);
     },
     handleAdd() {
-      const { count, dataSource } = this;
+      const { dataSource } = this;
       const newData = {
-        key: count,
-        name: `Edward King ${count}`,
-        age: 32,
-        address: `London, Park Lane no. ${count}`
+        key: this.count,
+        domain: this.domainToAdd,
+        range: this.rangeToAdd
       };
       this.dataSource = [...dataSource, newData];
-      this.count = count + 1;
+      this.count = this.count + 1;
+    },
+    handleChange(value, key, column) {
+      const newData = [...this.data];
+      const target = newData.filter(item => key === item.key)[0];
+      if (target) {
+        target[column] = value;
+        this.data = newData;
+      }
+    },
+    edit(key) {
+      const newData = [...this.data];
+      const target = newData.filter(item => key === item.key)[0];
+      if (target) {
+        target.editable = true;
+        this.data = newData;
+      }
+    },
+    save(key) {
+      const newData = [...this.data];
+      const target = newData.filter(item => key === item.key)[0];
+      if (target) {
+        delete target.editable;
+        this.data = newData;
+        this.cacheData = newData.map(item => ({ ...item }));
+      }
+    },
+    cancel(key) {
+      const newData = [...this.data];
+      const target = newData.filter(item => key === item.key)[0];
+      if (target) {
+        Object.assign(
+          target,
+          this.cacheData.filter(item => key === item.key)[0]
+        );
+        delete target.editable;
+        this.data = newData;
+      }
     }
   }
 };
@@ -135,5 +193,17 @@ export default {
 
 .editable-add-btn {
   margin-bottom: 8px;
+}
+
+.ant-table-wrapper:focus {
+  outline: none !important;
+}
+
+th:nth-child(3),
+td:nth-child(3),
+th:nth-child(4),
+td:nth-child(4) {
+  border: white !important;
+  background: white !important;
 }
 </style>
