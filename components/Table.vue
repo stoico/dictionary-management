@@ -286,6 +286,13 @@ export default {
         }
       }
     },
+    resetValidity() {
+      const that = this;
+      this.dataSource.forEach((value, index) => {
+        that.dataSource[index].validity.status = true;
+        that.dataSource[index].validity.reason = "";
+      });
+    },
 };
 </script>
 <style>
