@@ -293,6 +293,17 @@ export default {
         that.dataSource[index].validity.reason = "";
       });
     },
+    runAllValidityChecks() {
+      this.resetValidity();
+      // Change the order to establish which validity error needs to be marked (first)
+      // TO DO: Add conditions to check whether the row is already valid: false
+
+      this.checkForDuplicates();
+      this.checkForForks();
+      this.checkForCycles();
+      this.checkForChains();
+    }
+  },
 };
 </script>
 <style>
