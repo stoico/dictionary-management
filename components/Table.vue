@@ -171,6 +171,38 @@ export default {
         delete target.editable;
         this.data = newData;
       }
+    },
+    checkForDuplicates() {
+      const reasonNotValid = "Duplicate";
+      let result = [];
+      // Select each object in the collection as 'value'
+      for (const value of this.dataSource) {
+        // Store the duplicated objects (domain-range pair)
+        result = _.where(this.dataSource, {
+          domain: value.domain,
+          range: value.range
+        });
+
+        // Remove first result since it is the original pair
+        // (it's equal to itself)
+        result.shift();
+
+        // If a duplicate is found,
+        // the result's array length will be greater than 0
+        if (result.length > 0) {
+          for (const i of result) {
+            // Store the index of the invalid entry
+            const indexOfObject = this.dataSource.indexOf(i);
+
+            // Make sure it is not 'undefined', false
+            // Or a warning message ('reason') has already been assigned to the pair
+            if (
+              this.dataSource[indexOfObject].validity.status &&
+              this.dataSource[indexOfObject].validity.reason === ""
+            ) {
+              this.dataSource[indexOfObject].validity.status = false;
+              this.dataSource[indexOfObject].validity.reason = reasonNotValid;
+            }
     }
   }
 };
