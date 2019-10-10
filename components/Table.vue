@@ -304,11 +304,13 @@ export default {
       this.checkForChains();
     }
   },
+  // Make validity checks run at every change in the dictionary.
   watch: {
     dataSource: function() {
       this.runAllValidityChecks();
     }
   },
+  // Make validity checks run at the start
   mounted: function() {
     this.runAllValidityChecks();
   }
