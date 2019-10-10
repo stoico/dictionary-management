@@ -177,123 +177,17 @@ export default {
         this.data = newData;
       }
     },
-    checkForDuplicates() {
-      const data = this.dataSource;
-
-      for (const value of data) {
-        data.filter((pair, index) => {
-          if (pair.domain === value.domain && pair.range === value.range) {
-            // Make sure the object is not itself
-            if (data.indexOf(pair) !== data.indexOf(value)) {
-            if (
-                data[index].validity.status &&
-                data[index].validity.reason === ""
-            ) {
-                // Change validity of the pair to false and assign the reason why
-                data[index].validity.status = false;
-                data[index].validity.reason = this.reasonNotValid.duplicate;
-              }
-            }
-    }
-          });
-  }
-    },
-    checkForForks() {
-      let results = [];
-      const data = this.dataSource;
-
-      // Select each object in the collection as 'value'
-      for (const value of data) {
-        // Store the forked pairs (domain-range)
-        // Same domain but different ranges
-        results = data.filter(pair => {
-          // Make sure the object is not being compared to itself
-          if (data.indexOf(pair) !== data.indexOf(value)) {
-          return pair.domain === value.domain && pair.range !== !value.range;
-          }
-        });
-
-        if (results.length > 0) {
-          results.filter(result => {
-            // Store the index of the invalid entry
-            const indexOfObject = data.indexOf(result);
-
-            // Make sure it is not 'undefined' or false
-            if (
-              data[indexOfObject].validity.status &&
-              data[indexOfObject].validity.reason === ""
-            ) {
-              data[indexOfObject].validity.status = false;
-              data[indexOfObject].validity.reason = this.reasonNotValid.fork;
-          }
-          });
-        }
-      }
-    },
-    checkForCycles() {
-      let results = [];
-      const data = this.dataSource;
-
-      for (const value of data) {
-        results = data.filter(pair => {
-          return value.domain === pair.range && pair.range === value.domain;
-        });
-
-        if (results.length > 0) {
-          results.filter(result => {
-            const indexOfObject = data.indexOf(result);
-
-            if (
-              data[indexOfObject].validity.status &&
-              data[indexOfObject].validity.reason === ""
-            ) {
-              data[indexOfObject].validity.status = false;
-              data[indexOfObject].validity.reason = this.reasonNotValid.cycle;
-          }
-          });
-        }
-      }
-    },
-    checkForChains() {
-      let results = [];
-      const data = this.dataSource;
-
-      for (const value of data) {
-        results = data.filter(pair => {
-          return value.range === pair.domain;
-        });
-
-        if (results.length > 0) {
-          results.filter(result => {
-            const indexOfObject = data.indexOf(result);
-
-            if (
-              data[indexOfObject].validity.status &&
-              data[indexOfObject].validity.reason === ""
-            ) {
-              data[indexOfObject].validity.status = false;
-              data[indexOfObject].validity.reason = this.reasonNotValid.chain;
-          }
-          });
-        }
-      }
-    },
-    resetValidity() {
-      const that = this;
-      this.dataSource.forEach((value, index) => {
-        that.dataSource[index].validity.status = true;
-        that.dataSource[index].validity.reason = "";
-      });
-    },
+    // TO DO: Create master helper function to avoid repetition of code
+    // If possible
     runAllValidityChecks() {
-      this.resetValidity();
+      this.dataSource = consistency.resetValidity(this.dataSource);
       // Change the order to establish which validity error needs to be marked (first)
       // TO DO: Add conditions to check whether the row is already valid: false
 
-      this.checkForDuplicates();
-      this.checkForForks();
-      this.checkForCycles();
-      this.checkForChains();
+      this.dataSource = consistency.checkForDuplicates(this.dataSource);
+      this.dataSource = consistency.checkForForks(this.dataSource);
+      this.dataSource = consistency.checkForCycles(this.dataSource);
+      this.dataSource = consistency.checkForChains(this.dataSource);
     }
   },
   // Make validity checks run at every change in the dictionary.
