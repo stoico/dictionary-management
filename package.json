@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "ant-design-vue": "^1.1.10",
+    "babel-plugin-import": "^1.12.2",
     "nuxt": "^2.0.0",
     "underscore": "^1.9.1"
   },
