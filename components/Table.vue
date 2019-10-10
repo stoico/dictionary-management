@@ -45,24 +45,45 @@ export default {
   data() {
     return {
       max: 26,
-      domainToAdd: "Stonegrey",
-      rangeToAdd: "Dark Grey",
-      count: 4,
+      domainToAdd: "Silver",
+      rangeToAdd: "Mystic Silver",
+      count: 6,
       dataSource: [
         {
           domain: "Stonegrey",
           range: "Dark Grey",
-          key: 1
+          validity: { status: true, reason: "" },
+          key: 0
         },
         {
           domain: "Midnight Black",
           range: "Black",
-          key: 2
+          validity: { status: true, reason: "" },
+          key: 1
         },
         {
           domain: "Mystic Silver",
           range: "Silver",
+          validity: { status: true, reason: "" },
+          key: 2
+        },
+        {
+          domain: "Stonegrey",
+          range: "Dark Grey",
+          validity: { status: true, reason: "" },
           key: 3
+        },
+        {
+          domain: "Stonegrey",
+          range: "Anthracite",
+          validity: { status: true, reason: "" },
+          key: 4
+        },
+        {
+          domain: "Dark Grey",
+          range: "Stonegrey",
+          validity: { status: true, reason: "" },
+          key: 5
         }
       ],
       columns: [
