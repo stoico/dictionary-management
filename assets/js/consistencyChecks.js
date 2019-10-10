@@ -105,6 +105,7 @@ const consistencyChecks = {
 
     return data;
   },
+
   resetValidity(dictionaryData) {
     const data = dictionaryData;
 
@@ -112,9 +113,9 @@ const consistencyChecks = {
       data[index].validity.status = true;
       data[index].validity.reason = '';
     });
-
     return data;
   },
 };
+
 
 export default consistencyChecks;
