@@ -238,6 +238,30 @@ export default {
         }
       }
     },
+    checkForCycles() {
+      const reasonNotValid = "Cycle";
+      let results = [];
+
+      for (const value of this.dataSource) {
+        results = _.filter(this.dataSource, pair => {
+          return value.domain === pair.range && pair.range === value.domain;
+        });
+
+        if (results.length > 0) {
+          for (const result of results) {
+            const indexOfObject = this.dataSource.indexOf(result);
+
+            if (
+              this.dataSource[indexOfObject].validity.status &&
+              this.dataSource[indexOfObject].validity.reason === ""
+            ) {
+              this.dataSource[indexOfObject].validity.status = false;
+              this.dataSource[indexOfObject].validity.reason = reasonNotValid;
+            }
+          }
+        }
+      }
+    },
 };
 </script>
 <style>
