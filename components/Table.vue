@@ -206,84 +206,87 @@ export default {
     }
           });
   }
-      }
     },
     checkForForks() {
       const reasonNotValid = "Fork";
-      let result = [];
+      let results = [];
+      const data = this.dataSource;
+
       // Select each object in the collection as 'value'
-      for (const value of this.dataSource) {
+      for (const value of data) {
         // Store the forked pairs (domain-range)
         // Same domain but different ranges
-        result = _.filter(this.dataSource, pair => {
+        results = data.filter(pair => {
+          // Make sure the object is not being compared to itself
+          if (array.indexOf(pair) !== array.indexOf(value)) {
           return pair.domain === value.domain && pair.range !== !value.range;
+          }
         });
 
-        // Omit first result
-        result.shift();
-
-        if (result.length > 0) {
-          for (const res of result) {
+        if (results.length > 0) {
+          results.filter(result => {
             // Store the index of the invalid entry
-            const indexOfObject = this.dataSource.indexOf(res);
+            const indexOfObject = data.indexOf(result);
 
             // Make sure it is not 'undefined' or false
             if (
-              this.dataSource[indexOfObject].validity.status &&
-              this.dataSource[indexOfObject].validity.reason === ""
+              data[indexOfObject].validity.status &&
+              data[indexOfObject].validity.reason === ""
             ) {
-              this.dataSource[indexOfObject].validity.status = false;
-              this.dataSource[indexOfObject].validity.reason = reasonNotValid;
-            }
+              data[indexOfObject].validity.status = false;
+              data[indexOfObject].validity.reason = reasonNotValid;
           }
+          });
         }
       }
     },
     checkForCycles() {
       const reasonNotValid = "Cycle";
       let results = [];
+      const data = this.dataSource;
 
-      for (const value of this.dataSource) {
-        results = _.filter(this.dataSource, pair => {
+      for (const value of data) {
+        results = data.filter(pair => {
           return value.domain === pair.range && pair.range === value.domain;
         });
 
         if (results.length > 0) {
-          for (const result of results) {
-            const indexOfObject = this.dataSource.indexOf(result);
+          results.filter(result => {
+            const indexOfObject = data.indexOf(result);
 
             if (
-              this.dataSource[indexOfObject].validity.status &&
-              this.dataSource[indexOfObject].validity.reason === ""
+              data[indexOfObject].validity.status &&
+              data[indexOfObject].validity.reason === ""
             ) {
-              this.dataSource[indexOfObject].validity.status = false;
-              this.dataSource[indexOfObject].validity.reason = reasonNotValid;
-            }
+              data[indexOfObject].validity.status = false;
+              data[indexOfObject].validity.reason = reasonNotValid;
           }
+          });
         }
       }
     },
     checkForChains() {
       const reasonNotValid = "Chain";
       let results = [];
+      const data = this.dataSource;
 
-      for (const value of this.dataSource) {
-        results = _.filter(this.dataSource, pair => {
+      for (const value of data) {
+        results = data.filter(pair => {
           return value.range === pair.domain;
         });
 
         if (results.length > 0) {
-          for (const result of results) {
-            const indexOfObject = this.dataSource.indexOf(result);
+          results.filter(result => {
+            const indexOfObject = data.indexOf(result);
 
             if (
-              this.dataSource[indexOfObject].validity.status &&
-              this.dataSource[indexOfObject].validity.reason === ""
+              data[indexOfObject].validity.status &&
+              data[indexOfObject].validity.reason === ""
             ) {
-              this.dataSource[indexOfObject].validity.status = false;
-              this.dataSource[indexOfObject].validity.reason = reasonNotValid;
-            }
+              data[indexOfObject].validity.status = false;
+              data[indexOfObject].validity.reason = reasonNotValid;
           }
+          });
         }
       }
     },
