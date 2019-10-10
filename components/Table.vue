@@ -194,7 +194,6 @@ export default {
   }
     },
     checkForForks() {
-      const reasonNotValid = "Fork";
       let results = [];
       const data = this.dataSource;
 
@@ -220,14 +219,13 @@ export default {
               data[indexOfObject].validity.reason === ""
             ) {
               data[indexOfObject].validity.status = false;
-              data[indexOfObject].validity.reason = reasonNotValid;
+              data[indexOfObject].validity.reason = this.reasonNotValid.fork;
           }
           });
         }
       }
     },
     checkForCycles() {
-      const reasonNotValid = "Cycle";
       let results = [];
       const data = this.dataSource;
 
@@ -245,14 +243,13 @@ export default {
               data[indexOfObject].validity.reason === ""
             ) {
               data[indexOfObject].validity.status = false;
-              data[indexOfObject].validity.reason = reasonNotValid;
+              data[indexOfObject].validity.reason = this.reasonNotValid.cycle;
           }
           });
         }
       }
     },
     checkForChains() {
-      const reasonNotValid = "Chain";
       let results = [];
       const data = this.dataSource;
 
@@ -270,7 +267,7 @@ export default {
               data[indexOfObject].validity.reason === ""
             ) {
               data[indexOfObject].validity.status = false;
-              data[indexOfObject].validity.reason = reasonNotValid;
+              data[indexOfObject].validity.reason = this.reasonNotValid.chain;
           }
           });
         }
