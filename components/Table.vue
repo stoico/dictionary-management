@@ -304,6 +304,14 @@ export default {
       this.checkForChains();
     }
   },
+  watch: {
+    dataSource: function() {
+      this.runAllValidityChecks();
+    }
+  },
+  mounted: function() {
+    this.runAllValidityChecks();
+  }
 };
 </script>
 <style>
