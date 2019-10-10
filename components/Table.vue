@@ -199,11 +199,47 @@ export default {
   outline: none !important;
 }
 
-th:nth-child(3),
-td:nth-child(3),
+th:nth-child(1),
+td:nth-child(1) {
+  width: 10%;
+}
+th:nth-child(4),
+td:nth-child(4) {
+  width: 15%;
+}
+
+th:nth-child(1),
+td:nth-child(1),
 th:nth-child(4),
 td:nth-child(4) {
   border: white !important;
   background: white !important;
+}
+
+th:nth-child(2),
+td:nth-child(2),
+th:nth-child(3),
+td:nth-child(3) {
+  border: 1px solid #e8e8e8 !important;
+}
+
+th:nth-child(1),
+td:nth-child(1) {
+  text-align: center !important;
+  /* width: 5% !important; */
+}
+
+table {
+  border: none !important;
+}
+
+.warning-message {
+  color: orange;
+  font-size: 10px;
+}
+
+.severe-warning-message {
+  color: #fa541c;
+  font-size: 10px;
 }
 </style>
