@@ -203,7 +203,7 @@ export default {
         // Same domain but different ranges
         results = data.filter(pair => {
           // Make sure the object is not being compared to itself
-          if (array.indexOf(pair) !== array.indexOf(value)) {
+          if (data.indexOf(pair) !== data.indexOf(value)) {
           return pair.domain === value.domain && pair.range !== !value.range;
           }
         });
