@@ -174,36 +174,37 @@ export default {
     },
     checkForDuplicates() {
       const reasonNotValid = "Duplicate";
-      let result = [];
+      let results = [];
+      const data = this.dataSource;
+
       // Select each object in the collection as 'value'
-      for (const value of this.dataSource) {
+      for (const value of data) {
         // Store the duplicated objects (domain-range pair)
-        result = _.where(this.dataSource, {
-          domain: value.domain,
-          range: value.range
+        results = data.filter(pair => {
+          return pair.domain === value.domain && pair.range === value.range;
         });
 
-        // Remove first result since it is the original pair
+        // Remove first results since it is the original pair
         // (it's equal to itself)
-        result.shift();
+        results.shift();
 
         // If a duplicate is found,
-        // the result's array length will be greater than 0
-        if (result.length > 0) {
-          for (const i of result) {
+        // the results's array length will be greater than 0
+        if (results.length > 0) {
+          results.filter(result => {
             // Store the index of the invalid entry
-            const indexOfObject = this.dataSource.indexOf(i);
+            const indexOfObject = data.indexOf(result);
 
             // Make sure it is not 'undefined', false
             // Or a warning message ('reason') has already been assigned to the pair
             if (
-              this.dataSource[indexOfObject].validity.status &&
-              this.dataSource[indexOfObject].validity.reason === ""
+              data[indexOfObject].validity.status &&
+              data[indexOfObject].validity.reason === ""
             ) {
-              this.dataSource[indexOfObject].validity.status = false;
-              this.dataSource[indexOfObject].validity.reason = reasonNotValid;
-            }
+              data[indexOfObject].validity.status = false;
+              data[indexOfObject].validity.reason = reasonNotValid;
     }
+          });
   }
       }
     },
