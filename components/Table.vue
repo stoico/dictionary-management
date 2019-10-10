@@ -176,10 +176,10 @@ export default {
       const data = this.dataSource;
 
       for (const value of data) {
-        data.filter((pair, index, array) => {
+        data.filter((pair, index) => {
           if (pair.domain === value.domain && pair.range === value.range) {
             // Make sure the object is not itself
-            if (array.indexOf(pair) !== array.indexOf(value)) {
+            if (data.indexOf(pair) !== data.indexOf(value)) {
             if (
                 data[index].validity.status &&
                 data[index].validity.reason === ""
