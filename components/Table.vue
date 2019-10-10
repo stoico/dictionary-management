@@ -40,8 +40,13 @@
   </div>
 </template>
 <script>
+import EditableCell from "./EditableCell";
+import { _ } from "underscore";
+
 export default {
-  components: {},
+  components: {
+    EditableCell
+  },
   data() {
     return {
       max: 26,
