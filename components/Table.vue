@@ -173,36 +173,22 @@ export default {
       }
     },
     checkForDuplicates() {
-      const reasonNotValid = "Duplicate";
-      let results = [];
       const data = this.dataSource;
 
-      // Select each object in the collection as 'value'
       for (const value of data) {
-        // Store the duplicated objects (domain-range pair)
-        results = data.filter(pair => {
-          return pair.domain === value.domain && pair.range === value.range;
-        });
-
-        // Remove first results since it is the original pair
-        // (it's equal to itself)
-        results.shift();
-
-        // If a duplicate is found,
-        // the results's array length will be greater than 0
-        if (results.length > 0) {
-          results.filter(result => {
-            // Store the index of the invalid entry
-            const indexOfObject = data.indexOf(result);
-
-            // Make sure it is not 'undefined', false
-            // Or a warning message ('reason') has already been assigned to the pair
+        data.filter((pair, index, array) => {
+          if (pair.domain === value.domain && pair.range === value.range) {
+            // Make sure the object is not itself
+            if (array.indexOf(pair) !== array.indexOf(value)) {
             if (
-              data[indexOfObject].validity.status &&
-              data[indexOfObject].validity.reason === ""
+                data[index].validity.status &&
+                data[index].validity.reason === ""
             ) {
-              data[indexOfObject].validity.status = false;
-              data[indexOfObject].validity.reason = reasonNotValid;
+                // Change validity of the pair to false and assign the reason why
+                data[index].validity.status = false;
+                data[index].validity.reason = this.reasonNotValid.duplicate;
+              }
+            }
     }
           });
   }
