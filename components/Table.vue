@@ -205,6 +205,39 @@ export default {
             }
     }
   }
+      }
+    },
+    checkForForks() {
+      const reasonNotValid = "Fork";
+      let result = [];
+      // Select each object in the collection as 'value'
+      for (const value of this.dataSource) {
+        // Store the forked pairs (domain-range)
+        // Same domain but different ranges
+        result = _.filter(this.dataSource, pair => {
+          return pair.domain === value.domain && pair.range !== !value.range;
+        });
+
+        // Omit first result
+        result.shift();
+
+        if (result.length > 0) {
+          for (const res of result) {
+            // Store the index of the invalid entry
+            const indexOfObject = this.dataSource.indexOf(res);
+
+            // Make sure it is not 'undefined' or false
+            if (
+              this.dataSource[indexOfObject].validity.status &&
+              this.dataSource[indexOfObject].validity.reason === ""
+            ) {
+              this.dataSource[indexOfObject].validity.status = false;
+              this.dataSource[indexOfObject].validity.reason = reasonNotValid;
+            }
+          }
+        }
+      }
+    },
 };
 </script>
 <style>
