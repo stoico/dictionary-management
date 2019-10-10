@@ -88,6 +88,11 @@ export default {
       ],
       columns: [
         {
+          title: "Valid?",
+          dataIndex: "validity",
+          scopedSlots: { customRender: "validity" }
+        },
+        {
           title: "Domain",
           dataIndex: "domain",
           width: "30%",
@@ -95,11 +100,9 @@ export default {
         },
         {
           title: "Range",
-          dataIndex: "range"
-        },
-        {
-          title: "Valid?",
-          dataIndex: "valid"
+          dataIndex: "range",
+          width: "30%",
+          scopedSlots: { customRender: "range" }
         },
         {
           title: "",
