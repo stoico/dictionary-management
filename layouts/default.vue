@@ -1,61 +1,117 @@
 <template>
-  <a-layout
-    id="components-layout-demo-top"
-    class="layout"
-  >
-    <a-layout-header>
-      <div style="width: 1024px; margin: auto;">
-        <div class="logo" />
-        <a-menu
-          theme="dark"
-          mode="horizontal"
-          :default-selected-keys="['2']"
-          :style="{ lineHeight: '64px' }"
-        >
-          <a-menu-item key="1">
-            Example 1
-          </a-menu-item>
-          <a-menu-item key="2">
-            Example 2
-          </a-menu-item>
-          <a-menu-item key="3">
-            Example 3
-          </a-menu-item>
-        </a-menu>
-      </div>
-    </a-layout-header>
-    <a-layout-content
-      style="padding: 0 50px; min-height: 100vh; min-width: 1024px; margin: 0 auto;
-      box-sizing: content-box;"
+  <a-layout id="components-layout-demo-custom-trigger">
+    <a-layout-sider
+      v-model="collapsed"
+      :trigger="null"
+      collapsible
     >
-      <a-breadcrumb style="margin: 16px 0">
-        <a-breadcrumb-item>Home</a-breadcrumb-item>
-        <a-breadcrumb-item>App</a-breadcrumb-item>
-      </a-breadcrumb>
-      <div
-        :style="{ background: '#fff', padding: '32px', minHeight: '180px', borderRadius: '15px' }"
+      <div class="logo" />
+      <span
+        v-if="!collapsed"
+        style="padding: 12px 24px; color: #324453;"
+      >
+        Dictionaries
+      </span>
+      <a-menu
+        theme="dark"
+        mode="inline"
+        :default-selected-keys="['1']"
+      >
+        <a-menu-item
+          v-for="(dictionary, index) in dictionariesFromStore"
+          :key="index"
+        >
+          <a-icon type="database" />
+          <span>{{ dictionary.name }}</span>
+
+          <a-tooltip placement="right">
+            <template slot="title">
+              <span>Delete dictionary</span>
+            </template>
+            <a-icon
+              type="delete"
+              theme="filled"
+              style="color: #ffffff99; float: right; margin-top: 14px;"
+              @click="deleteObject(dictionaries, dictionary)"
+            />
+          </a-tooltip>
+        </a-menu-item>
+      </a-menu>
+    </a-layout-sider>
+    <a-layout>
+      <a-layout-header style="background: #fff; padding: 0">
+        <a-icon
+          class="trigger"
+          :type="collapsed ? 'menu-unfold' : 'menu-fold'"
+          @click="()=> collapsed = !collapsed"
+        />
+      </a-layout-header>
+      <a-layout-content
+        style="margin: 24px auto;
+                   max-width: 1024px;
+                   box-sizing: content-box;"
+        :style="{ padding: '24px', background: '#fff', minHeight: '180px', borderRadius: '15px'}"
       >
         <!-- Entry point to the Vue app with Nuxt -->
         <nuxt />
+      </a-layout-content>
+      <div class="center-flex">
+        <CreateTableButton />
       </div>
-    </a-layout-content>
-    <a-layout-footer style="text-align: center">
-      Created by Carmine for OneDot, 2019 ©
-    </a-layout-footer>
+      <a-layout-footer style="text-align: center; margin-top: 180px;">
+        Created by Carmine for OneDot, 2019 ©
+      </a-layout-footer>
+    </a-layout>
   </a-layout>
 </template>
+<script>
+import { mapMutations } from 'vuex';
+import { multipleDictionaries } from '../assets/js/multipleDictionaries';
+import CreateTableButton from '../components/CreateTableButton';
 
+export default {
+  components: {
+    CreateTableButton,
+  },
+  data() {
+    return {
+      collapsed: false,
+      dictionaries: multipleDictionaries,
+    };
+  },
+  computed: {
+    // Next level shit
+    dictionariesFromStore() {
+      return this.$store.state.dictionaries;
+    },
+  },
+  mounted() {
+    console.log('From the store');
+    console.log(this.$store.state.dictionaries);
+  },
+  methods: {
+    deleteObject(array, elementToDelete) {
+      this.dictionaries = array.filter((element) => elementToDelete !== element);
+    },
+  },
+};
+</script>
 <style>
-/* Use this to debug CSS */
-/* * {
-  border: 1px solid red;
-} */
+#components-layout-demo-custom-trigger .trigger {
+  font-size: 18px;
+  line-height: 64px;
+  padding: 0 24px;
+  cursor: pointer;
+  transition: color .3s;
+}
 
-#components-layout-demo-top .logo {
-  width: 120px;
-  height: 31px;
-  background: rgba(255, 255, 255, 0.2);
-  margin: 16px 24px 16px 0;
-  float: left;
+#components-layout-demo-custom-trigger .trigger:hover {
+  color: #1890ff;
+}
+
+#components-layout-demo-custom-trigger .logo {
+  height: 32px;
+  background: rgba(255,255,255,.2);
+  margin: 16px;
 }
 </style>
