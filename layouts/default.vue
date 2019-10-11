@@ -112,7 +112,6 @@ export default {
   },
   methods: {
     deleteObject(dictionary) {
-      this.$store.commit('addNewPairToDictionary', dictionary);
       // Delete if it's not the only one remaining
       if (this.dictionariesFromStore.length > 1) {
         this.select(this.dictionariesFromStore.indexOf(dictionary) - 1);
