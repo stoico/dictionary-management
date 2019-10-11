@@ -137,13 +137,6 @@
   </div>
 </template>
 <script>
-import {
-  checkForDuplicates,
-  checkForForks,
-  checkForCycles,
-  checkForChains,
-  resetValidity,
-} from '../assets/js/consistencyChecks';
 import EditableCell from './EditableCell';
 
 export default {
@@ -185,8 +178,10 @@ export default {
   computed: {
     // Next level shit
     dictionariesFromStore() {
-      console.log(this.$store.state.dictionaries[this.$store.state.indexOfSelected].content);
       return this.$store.state.dictionaries;
+    },
+    selectedDictionary() {
+      return this.$store.state.dictionaries[this.$store.state.indexOfSelected].content;
     },
     selectedIndex() {
       return this.$store.state.indexOfSelected || 0;
@@ -206,7 +201,11 @@ export default {
   },
   watch: {
     // Make validity checks run at every change in the dictionary.
-    dataSource() {
+    // selectedDictionary() {
+    // TO FIX: INFINITE LOOP 
+    //   this.runAllValidityChecks();
+    // },
+    selectedIndex() {
       this.runAllValidityChecks();
     },
   },
@@ -219,11 +218,13 @@ export default {
       this.$store.commit('editPair', {
         index, key, column, value,
       });
+      this.runAllValidityChecks();
     },
     onDelete(key) {
       const index = this.$store.state.indexOfSelected;
 
       this.$store.commit('deletePairFromDictionary', { index, key });
+      this.runAllValidityChecks();
     },
     handleAdd() {
       const domain = this.domainToAdd;
@@ -234,16 +235,19 @@ export default {
       if (dictionary) {
         this.$store.commit('addNewPairToDictionary', { dictionary, domain, range });
       }
+      this.runAllValidityChecks();
     },
     runAllValidityChecks() {
-      this.dataSource = resetValidity(this.dataSource);
       // Change the order to establish which validity error needs to be marked (first)
-      // TO DO: Add conditions to check whether the row is already valid: false
 
-      this.dataSource = checkForDuplicates(this.dataSource);
-      this.dataSource = checkForForks(this.dataSource);
-      this.dataSource = checkForCycles(this.dataSource);
-      this.dataSource = checkForChains(this.dataSource);
+      // reset validity before running the checks
+      this.$store.commit('resetValidity', this.$store.state.indexOfSelected);
+
+      // Check for duplicates, forks, cycles, chains
+      this.$store.commit('checkForDuplicates', this.$store.state.indexOfSelected);
+      this.$store.commit('checkForForks', this.$store.state.indexOfSelected);
+      this.$store.commit('checkForCycles', this.$store.state.indexOfSelected);
+      this.$store.commit('checkForChains', this.$store.state.indexOfSelected);
     },
   },
   // mounted() {
