@@ -1,126 +1,209 @@
 <template>
   <div>
-    <h2>Stored data</h2>
-    <a-table bordered :dataSource="dataSource" :columns="columns">
-      <template slot="operation" slot-scope="text, record">
+    <h1 style="text-align: center;">
+      {{ dictionariesFromStore[0].name }}
+    </h1>
+    <a-table
+      bordered
+      :data-source="dataSource"
+      :columns="columns"
+      size="middle"
+    >
+      <template
+        slot="validity"
+        slot-scope="text, record"
+      >
+        <div v-if="record.validity.status === true">
+          <a-icon
+            theme="filled"
+            type="check-circle"
+            style="color: #36bb0f;"
+          />
+        </div>
+        <div v-else>
+          <!-- TO DO: else if reason Cycle or Chain then red warning -->
+          <div v-if="record.validity.reason === 'Cycle'">
+            <a-icon
+              theme="filled"
+              type="exclamation-circle"
+              style="color: #fa541c;"
+            />
+            <div class="severe-warning-message">
+              {{ record.validity.reason }}
+            </div>
+          </div>
+          <div v-else-if="record.validity.reason === 'Chain'">
+            <a-icon
+              theme="filled"
+              type="exclamation-circle"
+              style="color: #fa541c;"
+            />
+            <div class="severe-warning-message">
+              {{ record.validity.reason }}
+            </div>
+          </div>
+          <div v-else>
+            <a-icon
+              theme="filled"
+              type="exclamation-circle"
+              style="color: orange;"
+            />
+            <div class="warning-message">
+              {{ record.validity.reason }}
+            </div>
+          </div>
+        </div>
+      </template>
+      <template
+        slot="domain"
+        slot-scope="text, record"
+      >
+        <editable-cell
+          :text="text"
+          @change="onCellChange(record.key, 'domain', $event)"
+        />
+      </template>
+      <template
+        slot="range"
+        slot-scope="text, record"
+      >
+        <editable-cell
+          :text="text"
+          @change="onCellChange(record.key, 'range', $event)"
+        />
+      </template>
+      <template
+        slot="operation"
+        slot-scope="text, record"
+      >
         <a-popconfirm
           v-if="dataSource.length"
+          style="width: 40px; !important"
           title="Sure to delete?"
-          v-on:confirm="() => onDelete(record.key)"
+          @confirm="() => onDelete(record.key)"
         >
-          <a href="javascript:;">Delete</a>
+          <a href="javascript:;">
+            <a-icon
+              type="delete"
+              theme="outlined"
+            />
+            <span>Delete</span>
+          </a>
         </a-popconfirm>
       </template>
     </a-table>
-    <a-divider></a-divider>
+    <a-divider />
     <h2>Would you like to add a new row?</h2>
-    <div style="display: flex; flex-direction: row; margin-bottom: 240px;">
+    <div style="display: flex; flex-direction: row;">
       <div style="margin-bottom: 10px; margin-right: 10px;">
         <a-input
-          style="width: 260px;"
-          autosize="true"
-          addonBefore="Domain"
-          defaultValue="Stonegrey"
-          :maxlength="max"
           v-model="domainToAdd"
+          style="width: 260px;"
+          autosize="true"
+          addon-before="Domain"
+          default-value="Stonegrey"
+          :maxlength="max"
         />
       </div>
       <div style="margin-bottom: 10px; margin-right: 10px;">
         <a-input
+          v-model="rangeToAdd"
           style="width: 260px;"
           autosize="true"
-          addonBefore="Range"
-          defaultValue="Dark Grey"
+          addon-before="Range"
+          default-value="Dark Grey"
           :maxlength="max"
-          v-model="rangeToAdd"
         />
       </div>
-      <a-button type="primary" class="editable-add-btn" v-on:click="handleAdd">Add</a-button>
+      <a-button
+        type="primary"
+        class="editable-add-btn"
+        @click="handleAdd"
+      >
+        Add row
+      </a-button>
+    </div>
+    <div style="padding: 8px 0; font-size: 10px;">
+      The validity of the new row will be checked in real-time.
     </div>
   </div>
 </template>
 <script>
-import EditableCell from "./EditableCell";
-import { _ } from "underscore";
+import { uuid } from 'vue-uuid';
+import {
+  checkForDuplicates,
+  checkForForks,
+  checkForCycles,
+  checkForChains,
+  resetValidity,
+} from '../assets/js/consistencyChecks';
+// import { mockData } from '../assets/js/mockData';
+// import { mockData } from '../assets/js/mockDataWithChains';
+import EditableCell from './EditableCell';
 
 export default {
   components: {
-    EditableCell
+    EditableCell,
+  },
+  props: {
+    // eslint-disable-next-line vue/require-default-prop
+    dataSet: {
+      type: Array,
+      require: true,
+    },
   },
   data() {
     return {
       max: 26,
-      domainToAdd: "Silver",
-      rangeToAdd: "Mystic Silver",
-      count: 6,
-      dataSource: [
-        {
-          domain: "Stonegrey",
-          range: "Dark Grey",
-          validity: { status: true, reason: "" },
-          key: 0
-        },
-        {
-          domain: "Midnight Black",
-          range: "Black",
-          validity: { status: true, reason: "" },
-          key: 1
-        },
-        {
-          domain: "Mystic Silver",
-          range: "Silver",
-          validity: { status: true, reason: "" },
-          key: 2
-        },
-        {
-          domain: "Stonegrey",
-          range: "Dark Grey",
-          validity: { status: true, reason: "" },
-          key: 3
-        },
-        {
-          domain: "Stonegrey",
-          range: "Anthracite",
-          validity: { status: true, reason: "" },
-          key: 4
-        },
-        {
-          domain: "Dark Grey",
-          range: "Stonegrey",
-          validity: { status: true, reason: "" },
-          key: 5
-        }
-      ],
+      domainToAdd: 'Mystic Silver',
+      rangeToAdd: 'Silver',
+      dataSource: this.dataSet,
       columns: [
         {
-          title: "Valid?",
-          dataIndex: "validity",
-          scopedSlots: { customRender: "validity" }
+          title: 'Valid?',
+          dataIndex: 'validity',
+          scopedSlots: { customRender: 'validity' },
         },
         {
-          title: "Domain",
-          dataIndex: "domain",
-          width: "30%",
-          scopedSlots: { customRender: "domain" }
+          title: 'Domain',
+          dataIndex: 'domain',
+          width: '30%',
+          scopedSlots: { customRender: 'domain' },
         },
         {
-          title: "Range",
-          dataIndex: "range",
-          width: "30%",
-          scopedSlots: { customRender: "range" }
+          title: 'Range',
+          dataIndex: 'range',
+          width: '30%',
+          scopedSlots: { customRender: 'range' },
         },
         {
-          title: "",
-          dataIndex: "operation",
-          scopedSlots: { customRender: "operation" }
-        }
-      ]
+          title: '',
+          dataIndex: 'operation',
+          scopedSlots: { customRender: 'operation' },
+        },
+      ],
     };
+  },
+  // Make validity checks run at every change in the dictionary.
+  computed: {
+    // Next level shit
+    dictionariesFromStore() {
+      return this.$store.state.dictionaries;
+    },
+  },
+  watch: {
+    dataSource() {
+      this.runAllValidityChecks();
+    },
+  },
+  // Make validity checks run at the start
+  mounted() {
+    this.runAllValidityChecks();
   },
   methods: {
     onCellChange(key, dataIndex, value) {
       const dataSource = [...this.dataSource];
-      const target = dataSource.find(item => item.key === key);
+      const target = dataSource.find((item) => item.key === key);
       if (target) {
         target[dataIndex] = value;
         this.dataSource = dataSource;
@@ -128,21 +211,21 @@ export default {
     },
     onDelete(key) {
       const dataSource = [...this.dataSource];
-      this.dataSource = dataSource.filter(item => item.key !== key);
+      this.dataSource = dataSource.filter((item) => item.key !== key);
     },
     handleAdd() {
       const { dataSource } = this;
       const newData = {
-        key: this.count,
+        key: uuid.v4(),
         domain: this.domainToAdd,
-        range: this.rangeToAdd
+        range: this.rangeToAdd,
+        validity: { status: true, reason: '' },
       };
       this.dataSource = [...dataSource, newData];
-      this.count = this.count + 1;
     },
     handleChange(value, key, column) {
       const newData = [...this.data];
-      const target = newData.filter(item => key === item.key)[0];
+      const target = newData.filter((item) => key === item.key)[0];
       if (target) {
         target[column] = value;
         this.data = newData;
@@ -150,7 +233,7 @@ export default {
     },
     edit(key) {
       const newData = [...this.data];
-      const target = newData.filter(item => key === item.key)[0];
+      const target = newData.filter((item) => key === item.key)[0];
       if (target) {
         target.editable = true;
         this.data = newData;
@@ -158,20 +241,20 @@ export default {
     },
     save(key) {
       const newData = [...this.data];
-      const target = newData.filter(item => key === item.key)[0];
+      const target = newData.filter((item) => key === item.key)[0];
       if (target) {
         delete target.editable;
         this.data = newData;
-        this.cacheData = newData.map(item => ({ ...item }));
+        this.cacheData = newData.map((item) => ({ ...item }));
       }
     },
     cancel(key) {
       const newData = [...this.data];
-      const target = newData.filter(item => key === item.key)[0];
+      const target = newData.filter((item) => key === item.key)[0];
       if (target) {
         Object.assign(
           target,
-          this.cacheData.filter(item => key === item.key)[0]
+          this.cacheData.filter((item) => key === item.key)[0],
         );
         delete target.editable;
         this.data = newData;
@@ -180,26 +263,24 @@ export default {
     // TO DO: Create master helper function to avoid repetition of code
     // If possible
     runAllValidityChecks() {
-      this.dataSource = consistency.resetValidity(this.dataSource);
+      this.dataSource = resetValidity(this.dataSource);
       // Change the order to establish which validity error needs to be marked (first)
       // TO DO: Add conditions to check whether the row is already valid: false
 
-      this.dataSource = consistency.checkForDuplicates(this.dataSource);
-      this.dataSource = consistency.checkForForks(this.dataSource);
-      this.dataSource = consistency.checkForCycles(this.dataSource);
-      this.dataSource = consistency.checkForChains(this.dataSource);
-    }
+      this.dataSource = checkForDuplicates(this.dataSource);
+      this.dataSource = checkForForks(this.dataSource);
+      this.dataSource = checkForCycles(this.dataSource);
+      this.dataSource = checkForChains(this.dataSource);
+    },
   },
-  // Make validity checks run at every change in the dictionary.
-  watch: {
-    dataSource: function() {
-      this.runAllValidityChecks();
-    }
-  },
-  // Make validity checks run at the start
-  mounted: function() {
-    this.runAllValidityChecks();
-  }
+  // mounted() {
+  //   if (localStorage.dataSource) this.dataSource = localStorage.dataSource;
+  // },
+  // watch: {
+  //   name(newName) {
+  //     localStorage.dataSource = newName;
+  //   }
+  // },
 };
 </script>
 <style>
