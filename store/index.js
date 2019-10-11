@@ -218,6 +218,18 @@ export const mutations = {
     const data = [...state.dictionaries[index].content];
     state.dictionaries[index].content = data.filter((item) => item.key !== key);
   },
+  editPair(state, {
+    index, key, column, value,
+  }) {
+    const dictionary = state.dictionaries[index].content;
+
+    state.dictionaries[index].content = dictionary.map((pair) => {
+      if (pair.key === key) {
+        pair[column] = value;
+      }
+      return pair;
+    });
+  },
   setIndexSelected(state, index) {
     if (state.dictionaries[index]) {
       state.indexOfSelected = index;
