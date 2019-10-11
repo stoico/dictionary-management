@@ -36,6 +36,7 @@ export default {
     },
     addDictionary() {
       this.$store.commit('addDictionary', this.dictionaryName);
+      this.$store.commit('setIndexSelected', this.$store.state.dictionaries.length - 1);
     },
   },
 };
