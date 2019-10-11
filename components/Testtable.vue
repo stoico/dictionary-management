@@ -1,31 +1,37 @@
 <template>
   <div>
-    <!-- Display name of the Dictionary -->
     <h1 style="text-align: center;">
-      {{ dictionariesFromStore[selectedIndex].name }}
+      {{ dictionariesFromStore[0].name }}
     </h1>
-    <!-- Display pairs in the dictionary in a table -->
     <a-table
       bordered
-      :data-source="dictionariesFromStore[selectedIndex].content"
+      :data-source="dictionariesFromStore[0].content"
       :columns="columns"
       size="middle"
     >
-      <!-- Display validity of the pair,
-      with an icon (green, orange, red) and label -->
       <template
         slot="validity"
         slot-scope="text, record"
       >
-        <a-icon
-          theme="filled"
-          :class="warningColor(record)"
-          :type="warningIcon(record)"
-        />
         <div
-          class="font10px"
-          :class="warningColor(record)"
+          v-if="record.validity.status === true"
         >
+          <a-icon
+            theme="filled"
+            type="check-circle"
+          />
+            <!-- :type="warningIcon(element)" -->
+            <!-- :class="warningColor(element)" -->
+        </div>
+        <div
+          v-if="record.validity.status === false"
+          class="font10px"
+        >
+          <a-icon
+            theme="filled"
+            type="check-circle"
+          />
+            <!-- :class="warningColor(record)" -->
           {{ record.validity.reason }}
         </div>
       </template>
@@ -33,29 +39,26 @@
         slot="domain"
         slot-scope="text, record"
       >
-        <!-- Display domain column -->
         <editable-cell
           :text="text"
-          @change="onValueChange(selectedIndex, record.key, 'domain', $event)"
+          @change="onCellChange(record.key, 'domain', $event)"
         />
       </template>
       <template
         slot="range"
         slot-scope="text, record"
       >
-        <!-- Display range column -->
         <editable-cell
           :text="text"
-          @change="onValueChange(selectedIndex, record.key, 'range', $event)"
+          @change="onCellChange(record.key, 'range', $event)"
         />
       </template>
-      <!-- Button to delete the pair -->
       <template
         slot="operation"
         slot-scope="text, record"
       >
         <a-popconfirm
-          v-if="dictionariesFromStore.length"
+          v-if="dataSource.length"
           style="width: 40px; !important"
           title="Sure to delete?"
           @confirm="() => onDelete(record.key)"
@@ -71,7 +74,6 @@
       </template>
     </a-table>
     <a-divider />
-    <!-- Input to add a new pair to the dictionary -->
     <h2>Would you like to add a new row?</h2>
     <div style="display: flex; flex-direction: row;">
       <div style="margin-bottom: 10px; margin-right: 10px;">
@@ -97,7 +99,7 @@
       <a-button
         type="primary"
         class="editable-add-btn"
-        @click="handleAdd()"
+        @click="handleAdd"
       >
         Add row
       </a-button>
@@ -108,11 +110,27 @@
   </div>
 </template>
 <script>
+import { uuid } from 'vue-uuid';
+import {
+  checkForDuplicates,
+  checkForForks,
+  checkForCycles,
+  checkForChains,
+  resetValidity,
+} from '../assets/js/consistencyChecks';
 import EditableCell from './EditableCell';
 
 export default {
   components: {
     EditableCell,
+  },
+  props: {
+    // eslint-disable-next-line vue/require-default-prop
+    selected:
+    {
+      type: Object,
+      required: true,
+    },
   },
   data() {
     return {
@@ -146,21 +164,32 @@ export default {
       ],
     };
   },
+  // Make validity checks run at every change in the dictionary.
   computed: {
     // Next level shit
     dictionariesFromStore() {
       return this.$store.state.dictionaries;
     },
-    selectedDictionary() {
-      return this.$store.state.dictionaries[this.$store.state.indexOfSelected].content;
+    warningColor(el) {
+      console.log('el');
+      console.log(el);
+      if (el.validity.reason === ('Chain' || 'Cycle')) {
+        return 'severe-warning-message';
+      }
+      if (el.validity.reason === ('Duplicate' || 'Fork')) {
+        return 'warning-message';
+      }
+      return 'valid-message';
     },
-    selectedIndex() {
-      return this.$store.state.indexOfSelected || 0;
+    warningIcon(el) {
+      if (el.validity.status) {
+        return 'check-circle';
+      }
+      return 'exclamation-circle';
     },
   },
   watch: {
-    // Make validity checks run at every change in the dictionary.
-    selectedIndex() {
+    dataSource() {
       this.runAllValidityChecks();
     },
   },
@@ -169,56 +198,76 @@ export default {
     this.runAllValidityChecks();
   },
   methods: {
-    onValueChange(index, key, column, value) {
-      this.$store.commit('editPair', {
-        index, key, column, value,
-      });
-      this.runAllValidityChecks();
+    onCellChange(key, dataIndex, value) {
+      const dataSource = [...this.dataSource];
+      const target = dataSource.find((item) => item.key === key);
+      if (target) {
+        target[dataIndex] = value;
+        this.dataSource = dataSource;
+      }
     },
     onDelete(key) {
-      const index = this.$store.state.indexOfSelected;
-
-      this.$store.commit('deletePairFromDictionary', { index, key });
-      this.runAllValidityChecks();
+      const dataSource = [...this.dataSource];
+      this.dataSource = dataSource.filter((item) => item.key !== key);
     },
     handleAdd() {
-      const domain = this.domainToAdd;
-      const range = this.rangeToAdd;
-
-      const index = this.$store.state.indexOfSelected;
-      const dictionary = this.dictionariesFromStore[index];
-      if (dictionary) {
-        this.$store.commit('addNewPairToDictionary', { dictionary, domain, range });
-      }
-      this.runAllValidityChecks();
+      const { dataSource } = this;
+      const newData = {
+        key: uuid.v4(),
+        domain: this.domainToAdd,
+        range: this.rangeToAdd,
+        validity: { status: true, reason: '' },
+      };
+      this.dataSource = [...dataSource, newData];
     },
+    handleChange(value, key, column) {
+      const newData = [...this.data];
+      const target = newData.filter((item) => key === item.key)[0];
+      if (target) {
+        target[column] = value;
+        this.data = newData;
+      }
+    },
+    edit(key) {
+      const newData = [...this.data];
+      const target = newData.filter((item) => key === item.key)[0];
+      if (target) {
+        target.editable = true;
+        this.data = newData;
+      }
+    },
+    save(key) {
+      const newData = [...this.data];
+      const target = newData.filter((item) => key === item.key)[0];
+      if (target) {
+        delete target.editable;
+        this.data = newData;
+        this.cacheData = newData.map((item) => ({ ...item }));
+      }
+    },
+    cancel(key) {
+      const newData = [...this.data];
+      const target = newData.filter((item) => key === item.key)[0];
+      if (target) {
+        Object.assign(
+          target,
+          this.cacheData.filter((item) => key === item.key)[0],
+        );
+        delete target.editable;
+        this.data = newData;
+      }
+    },
+    // TO DO: Create master helper function to avoid repetition of code
+    // If possible
     runAllValidityChecks() {
-      // reset validity before running the checks
-      this.$store.commit('resetValidity', this.$store.state.indexOfSelected);
+      this.dataSource = resetValidity(this.dataSource);
+      // Change the order to establish which validity error needs to be marked (first)
+      // TO DO: Add conditions to check whether the row is already valid: false
 
-      // Check for duplicates, forks, cycles, chains
-      //
-      // Priority: [First] Chains -> Cycles -> Forks -> Duplicates [Last]
-      // Change the order to establish which validity error needs to be marked first
-      this.$store.commit('checkForChains', this.$store.state.indexOfSelected);
-      this.$store.commit('checkForCycles', this.$store.state.indexOfSelected);
-      this.$store.commit('checkForDuplicates', this.$store.state.indexOfSelected);
-      this.$store.commit('checkForForks', this.$store.state.indexOfSelected);
-    },
-    warningColor(record) {
-      if (record.validity.reason === 'Cycle' || record.validity.reason === 'Chain') {
-        return 'severe-warning-message';
-      }
-      if (record.validity.reason === 'Duplicate' || record.validity.reason === 'Fork') {
-        return 'warning-message';
-      }
-      return 'valid-message';
-    },
-    warningIcon(record) {
-      if (record.validity.status) {
-        return 'check-circle';
-      }
-      return 'exclamation-circle';
+      this.dataSource = checkForDuplicates(this.dataSource);
+      this.dataSource = checkForForks(this.dataSource);
+      this.dataSource = checkForCycles(this.dataSource);
+      this.dataSource = checkForChains(this.dataSource);
     },
   },
   // mounted() {
