@@ -218,18 +218,19 @@ export default {
       }
     },
     onDelete(key) {
-      const dataSource = [...this.dataSource];
-      this.dataSource = dataSource.filter((item) => item.key !== key);
+      const index = this.$store.state.indexOfSelected;
+
+      this.$store.commit('deletePairFromDictionary', {index, key});
     },
     handleAdd() {
-      const { dataSource } = this;
-      const newData = {
-        key: uuid.v4(),
-        domain: this.domainToAdd,
-        range: this.rangeToAdd,
-        validity: { status: true, reason: '' },
-      };
-      this.dataSource = [...dataSource, newData];
+      const domain = this.domainToAdd;
+      const range = this.rangeToAdd;
+
+      const index = this.$store.state.indexOfSelected;
+      const dictionary = this.dictionariesFromStore[index];
+      if (dictionary) {
+        this.$store.commit('addNewPairToDictionary', { dictionary, domain, range });
+      }
     },
     handleChange(value, key, column) {
       const newData = [...this.data];
