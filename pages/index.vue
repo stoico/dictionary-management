@@ -9,12 +9,6 @@ export default {
   components: {
     Table,
   },
-  data() {
-  },
-  watch: {
-  },
-  mounted() {
-  },
 };
 </script>
 
