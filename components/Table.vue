@@ -182,11 +182,14 @@ export default {
       ],
     };
   },
-  // Make validity checks run at every change in the dictionary.
   computed: {
     // Next level shit
     dictionariesFromStore() {
+      console.log(this.$store.state.dictionaries);
       return this.$store.state.dictionaries;
+    },
+    selectedIndex() {
+      return this.$store.state.indexOfSelected || 0;
     },
     warningColor(record) {
       if (record.validity.reason === ('Chain' || 'Cycle')) {
@@ -197,8 +200,12 @@ export default {
       }
       return 'valid-message';
     },
+    // dataSource() {
+    //   return this.dictionariesFromStore[0].content;
+    // },
   },
   watch: {
+    // Make validity checks run at every change in the dictionary.
     dataSource() {
       this.runAllValidityChecks();
     },
@@ -206,7 +213,6 @@ export default {
   // Make validity checks run at the start
   mounted() {
     this.runAllValidityChecks();
-    console.log(this.selected);
   },
   methods: {
     onCellChange(key, dataIndex, value) {
@@ -234,7 +240,7 @@ export default {
     },
     handleChange(value, key, column) {
       const newData = [...this.data];
-      const target = newData.filter((item) => key === item.key)[0];
+      const target = newData.filter((item) => key === item.key)[this.selectedIndex];
       if (target) {
         target[column] = value;
         this.data = newData;
@@ -242,7 +248,7 @@ export default {
     },
     edit(key) {
       const newData = [...this.data];
-      const target = newData.filter((item) => key === item.key)[0];
+      const target = newData.filter((item) => key === item.key)[this.selectedIndex];
       if (target) {
         target.editable = true;
         this.data = newData;
@@ -250,7 +256,7 @@ export default {
     },
     save(key) {
       const newData = [...this.data];
-      const target = newData.filter((item) => key === item.key)[0];
+      const target = newData.filter((item) => key === item.key)[this.selectedIndex];
       if (target) {
         delete target.editable;
         this.data = newData;
@@ -259,11 +265,11 @@ export default {
     },
     cancel(key) {
       const newData = [...this.data];
-      const target = newData.filter((item) => key === item.key)[0];
+      const target = newData.filter((item) => key === item.key)[this.selectedIndex];
       if (target) {
         Object.assign(
           target,
-          this.cacheData.filter((item) => key === item.key)[0],
+          this.cacheData.filter((item) => key === item.key)[this.selectedIndex],
         );
         delete target.editable;
         this.data = newData;
