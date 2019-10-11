@@ -19,6 +19,16 @@
         "vue"
     ],
     "rules": {
+      "no-param-reassign": 0,
+      "no-console": 0,
+      "no-shadow": [
+        "error",
+        {
+          "allow": [
+            "state"
+          ]
+        }
+      ]
     },
     "settings": {
       "import/resolver": {
