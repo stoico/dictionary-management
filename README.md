@@ -1,4 +1,4 @@
-# onedot
+# Dictionary - OneDot
 
 > Dictionary management system
 
