@@ -5,7 +5,7 @@
     </h1>
     <a-table
       bordered
-      :data-source="dataSource"
+      :data-source="dictionariesFromStore[0].content"
       :columns="columns"
       size="middle"
     >
@@ -17,7 +17,7 @@
           <a-icon
             theme="filled"
             type="check-circle"
-            style="color: #36bb0f;"
+            class="valid-message"
           />
         </div>
         <div v-else>
@@ -28,7 +28,7 @@
               type="exclamation-circle"
               style="color: #fa541c;"
             />
-            <div class="severe-warning-message">
+            <div class="severe-warning-message font10px">
               {{ record.validity.reason }}
             </div>
           </div>
@@ -38,7 +38,7 @@
               type="exclamation-circle"
               style="color: #fa541c;"
             />
-            <div class="severe-warning-message">
+            <div class="severe-warning-message font10px">
               {{ record.validity.reason }}
             </div>
           </div>
@@ -48,7 +48,7 @@
               type="exclamation-circle"
               style="color: orange;"
             />
-            <div class="warning-message">
+            <div class="warning-message font10px">
               {{ record.validity.reason }}
             </div>
           </div>
@@ -137,8 +137,6 @@ import {
   checkForChains,
   resetValidity,
 } from '../assets/js/consistencyChecks';
-// import { mockData } from '../assets/js/mockData';
-// import { mockData } from '../assets/js/mockDataWithChains';
 import EditableCell from './EditableCell';
 
 export default {
@@ -147,9 +145,10 @@ export default {
   },
   props: {
     // eslint-disable-next-line vue/require-default-prop
-    dataSet: {
-      type: Array,
-      require: true,
+    selected:
+    {
+      type: Object,
+      required: true,
     },
   },
   data() {
@@ -157,7 +156,7 @@ export default {
       max: 26,
       domainToAdd: 'Mystic Silver',
       rangeToAdd: 'Silver',
-      dataSource: this.dataSet,
+      dataSource: [],
       columns: [
         {
           title: 'Valid?',
@@ -190,6 +189,15 @@ export default {
     dictionariesFromStore() {
       return this.$store.state.dictionaries;
     },
+    warningColor(record) {
+      if (record.validity.reason === ('Chain' || 'Cycle')) {
+        return 'severe-warning-message';
+      }
+      if (record.validity.reason === ('Duplicate' || 'Fork')) {
+        return 'warning-message';
+      }
+      return 'valid-message';
+    },
   },
   watch: {
     dataSource() {
@@ -199,6 +207,7 @@ export default {
   // Make validity checks run at the start
   mounted() {
     this.runAllValidityChecks();
+    console.log(this.selected);
   },
   methods: {
     onCellChange(key, dataIndex, value) {
@@ -365,13 +374,18 @@ table {
   border: none !important;
 }
 
+.font10px {
+  font-size: 10px;
+}
+
+.valid-message {
+  color: #36bb0f;
+}
 .warning-message {
   color: orange;
-  font-size: 10px;
 }
 
 .severe-warning-message {
   color: #fa541c;
-  font-size: 10px;
 }
 </style>
