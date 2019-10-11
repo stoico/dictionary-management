@@ -218,4 +218,11 @@ export const mutations = {
     const data = [...state.dictionaries[index].content];
     state.dictionaries[index].content = data.filter((item) => item.key !== key);
   },
+  setIndexSelected(state, index) {
+    if (state.dictionaries[index]) {
+      state.indexOfSelected = index;
+    } else {
+      state.indexOfSelected = 0;
+    }
+  },
 };
