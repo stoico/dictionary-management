@@ -1,14 +1,18 @@
 <template>
   <div>
+    <!-- Display name of the Dictionary -->
     <h1 style="text-align: center;">
-      {{ dictionariesFromStore[0].name }}
+      {{ dictionariesFromStore[selectedIndex].name }}
     </h1>
+    <!-- Display pairs in the dictionary in a table -->
     <a-table
       bordered
-      :data-source="dictionariesFromStore[0].content"
+      :data-source="dictionariesFromStore[selectedIndex].content"
       :columns="columns"
       size="middle"
     >
+      <!-- Display validity of the pair,
+      with an icon (green, orange, red) and label -->
       <template
         slot="validity"
         slot-scope="text, record"
@@ -21,7 +25,6 @@
           />
         </div>
         <div v-else>
-          <!-- TO DO: else if reason Cycle or Chain then red warning -->
           <div v-if="record.validity.reason === 'Cycle'">
             <a-icon
               theme="filled"
@@ -48,6 +51,7 @@
               type="exclamation-circle"
               style="color: orange;"
             />
+            <!-- Display reason why the pair is not valid -->
             <div class="warning-message font10px">
               {{ record.validity.reason }}
             </div>
@@ -58,6 +62,7 @@
         slot="domain"
         slot-scope="text, record"
       >
+        <!-- Display domain column -->
         <editable-cell
           :text="text"
           @change="onCellChange(record.key, 'domain', $event)"
@@ -67,17 +72,19 @@
         slot="range"
         slot-scope="text, record"
       >
+        <!-- Display range column -->
         <editable-cell
           :text="text"
           @change="onCellChange(record.key, 'range', $event)"
         />
       </template>
+      <!-- Button to delete the pair -->
       <template
         slot="operation"
         slot-scope="text, record"
       >
         <a-popconfirm
-          v-if="dataSource.length"
+          v-if="dictionariesFromStore.length"
           style="width: 40px; !important"
           title="Sure to delete?"
           @confirm="() => onDelete(record.key)"
@@ -93,6 +100,7 @@
       </template>
     </a-table>
     <a-divider />
+    <!-- Input to add a new pair to the dictionary -->
     <h2>Would you like to add a new row?</h2>
     <div style="display: flex; flex-direction: row;">
       <div style="margin-bottom: 10px; margin-right: 10px;">
@@ -118,7 +126,7 @@
       <a-button
         type="primary"
         class="editable-add-btn"
-        @click="handleAdd"
+        @click="handleAdd()"
       >
         Add row
       </a-button>
@@ -129,7 +137,6 @@
   </div>
 </template>
 <script>
-import { uuid } from 'vue-uuid';
 import {
   checkForDuplicates,
   checkForForks,
@@ -142,14 +149,6 @@ import EditableCell from './EditableCell';
 export default {
   components: {
     EditableCell,
-  },
-  props: {
-    // eslint-disable-next-line vue/require-default-prop
-    selected:
-    {
-      type: Object,
-      required: true,
-    },
   },
   data() {
     return {
