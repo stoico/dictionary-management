@@ -65,7 +65,7 @@
         <!-- Display domain column -->
         <editable-cell
           :text="text"
-          @change="onCellChange(record.key, 'domain', $event)"
+          @change="onValueChange(selectedIndex, record.key, 'domain', $event)"
         />
       </template>
       <template
@@ -75,7 +75,7 @@
         <!-- Display range column -->
         <editable-cell
           :text="text"
-          @change="onCellChange(record.key, 'range', $event)"
+          @change="onValueChange(selectedIndex, record.key, 'range', $event)"
         />
       </template>
       <!-- Button to delete the pair -->
@@ -185,7 +185,7 @@ export default {
   computed: {
     // Next level shit
     dictionariesFromStore() {
-      console.log(this.$store.state.dictionaries);
+      console.log(this.$store.state.dictionaries[this.$store.state.indexOfSelected].content);
       return this.$store.state.dictionaries;
     },
     selectedIndex() {
@@ -215,18 +215,15 @@ export default {
     this.runAllValidityChecks();
   },
   methods: {
-    onCellChange(key, dataIndex, value) {
-      const dataSource = [...this.dataSource];
-      const target = dataSource.find((item) => item.key === key);
-      if (target) {
-        target[dataIndex] = value;
-        this.dataSource = dataSource;
-      }
+    onValueChange(index, key, column, value) {
+      this.$store.commit('editPair', {
+        index, key, column, value,
+      });
     },
     onDelete(key) {
       const index = this.$store.state.indexOfSelected;
 
-      this.$store.commit('deletePairFromDictionary', {index, key});
+      this.$store.commit('deletePairFromDictionary', { index, key });
     },
     handleAdd() {
       const domain = this.domainToAdd;
@@ -238,45 +235,6 @@ export default {
         this.$store.commit('addNewPairToDictionary', { dictionary, domain, range });
       }
     },
-    handleChange(value, key, column) {
-      const newData = [...this.data];
-      const target = newData.filter((item) => key === item.key)[this.selectedIndex];
-      if (target) {
-        target[column] = value;
-        this.data = newData;
-      }
-    },
-    edit(key) {
-      const newData = [...this.data];
-      const target = newData.filter((item) => key === item.key)[this.selectedIndex];
-      if (target) {
-        target.editable = true;
-        this.data = newData;
-      }
-    },
-    save(key) {
-      const newData = [...this.data];
-      const target = newData.filter((item) => key === item.key)[this.selectedIndex];
-      if (target) {
-        delete target.editable;
-        this.data = newData;
-        this.cacheData = newData.map((item) => ({ ...item }));
-      }
-    },
-    cancel(key) {
-      const newData = [...this.data];
-      const target = newData.filter((item) => key === item.key)[this.selectedIndex];
-      if (target) {
-        Object.assign(
-          target,
-          this.cacheData.filter((item) => key === item.key)[this.selectedIndex],
-        );
-        delete target.editable;
-        this.data = newData;
-      }
-    },
-    // TO DO: Create master helper function to avoid repetition of code
-    // If possible
     runAllValidityChecks() {
       this.dataSource = resetValidity(this.dataSource);
       // Change the order to establish which validity error needs to be marked (first)
