@@ -298,6 +298,7 @@ export const mutations = {
 
     data.forEach((value) => {
       state.dictionaries[indexDictionary].content = data.map((pair, index) => {
+        if (data.indexOf(pair) !== data.indexOf(value)) {
         if (value.domain === pair.range && value.range === pair.domain) {
           if (
             data[index].validity.status
@@ -306,6 +307,7 @@ export const mutations = {
             data[index].validity.status = false;
             data[index].validity.reason = reasonNotValid.cycle;
           }
+        }
         }
         return pair;
       });
