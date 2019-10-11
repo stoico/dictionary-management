@@ -17,12 +17,11 @@
       </span>
       <a-menu
         theme="dark"
-        mode="inline"
-        :default-selected-keys="['1']"
       >
         <a-menu-item
           v-for="(dictionary, index) in dictionariesFromStore"
           :key="index"
+          @click="select(index)"
         >
           <a-icon type="database" />
           <span>{{ dictionary.name }}</span>
@@ -35,7 +34,7 @@
               type="delete"
               theme="filled"
               style="color: #ffffff99; float: right; margin-top: 14px;"
-              @click="deleteObject(dictionaries, dictionary)"
+              @click="deleteObject(dictionary)"
             />
           </a-tooltip>
         </a-menu-item>
@@ -48,11 +47,19 @@
           :type="collapsed ? 'menu-unfold' : 'menu-fold'"
           @click="()=> collapsed = !collapsed"
         />
+        <a-button
+          icon="save"
+          size="large"
+          style="float:right; margin: 16px;"
+        >
+          Save for later
+        </a-button>
       </a-layout-header>
       <a-layout-content
         style="margin: 24px auto;
                    max-width: 1024px;
-                   box-sizing: content-box;"
+                   box-sizing: content-box;
+                   display: inline-table;"
         :style="{ padding: '24px', background: '#fff', minHeight: '180px', borderRadius: '15px'}"
       >
         <!-- Entry point to the Vue app with Nuxt -->
@@ -68,8 +75,6 @@
   </a-layout>
 </template>
 <script>
-import { mapMutations } from 'vuex';
-import { multipleDictionaries } from '../assets/js/multipleDictionaries';
 import CreateTableButton from '../components/CreateTableButton';
 
 export default {
@@ -79,7 +84,7 @@ export default {
   data() {
     return {
       collapsed: false,
-      dictionaries: multipleDictionaries,
+      selDictionary: this.$store.state.dictionaries[0],
     };
   },
   computed: {
@@ -87,14 +92,23 @@ export default {
     dictionariesFromStore() {
       return this.$store.state.dictionaries;
     },
+    selectedIndex() {
+      return [(this.$store.state.indexOfSelected + 1).toString()];
+    },
   },
   mounted() {
-    console.log('From the store');
-    console.log(this.$store.state.dictionaries);
   },
   methods: {
-    deleteObject(array, elementToDelete) {
-      this.dictionaries = array.filter((element) => elementToDelete !== element);
+    deleteObject(dictionary) {
+      this.$store.commit('addNewPairToDictionary', dictionary);
+      // Delete if it's not the only one remaining
+      if (this.dictionariesFromStore.length > 1) {
+        this.select(this.dictionariesFromStore.indexOf(dictionary) - 1);
+        this.$store.commit('deleteDictionary', dictionary);
+      }
+    },
+    select(index) {
+      this.$store.commit('setIndexSelected', index);
     },
   },
 };
