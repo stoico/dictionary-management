@@ -1,5 +1,13 @@
 import { uuid } from 'vue-uuid';
 
+// Define strings for the warning messages in case of an inconsistency
+const reasonNotValid = {
+  duplicate: 'Duplicate',
+  fork: 'Fork',
+  cycle: 'Cycle',
+  chain: 'Chain',
+};
+
 export const state = () => ({
   dictionaries: [
     {
@@ -236,5 +244,101 @@ export const mutations = {
     } else {
       state.indexOfSelected = 0;
     }
+  },
+  // Validity checks
+  //
+  // Duplicate inconsistency
+  checkForDuplicates(state, indexDictionary) {
+    const data = state.dictionaries[indexDictionary].content;
+
+    data.forEach((value) => {
+      state.dictionaries[indexDictionary].content = data.map((pair, index) => {
+        // Make sure the object is not itself
+        if (data.indexOf(pair) !== data.indexOf(value)) {
+          if (pair.domain === value.domain && pair.range === value.range) {
+            if (
+              data[index].validity.status
+              && data[index].validity.reason === ''
+            ) {
+              // Change validity of the pair to false and assign the reason why
+              data[index].validity.status = false;
+              data[index].validity.reason = reasonNotValid.duplicate;
+            }
+          }
+        }
+        return pair;
+      });
+    });
+  },
+  // Fork inconsistency
+  checkForForks(state, indexDictionary) {
+    const data = state.dictionaries[indexDictionary].content;
+
+    data.forEach((value) => {
+      state.dictionaries[indexDictionary].content = data.map((pair, index) => {
+      // Make sure the object is not being compared to itself
+        if (data.indexOf(pair) !== data.indexOf(value)) {
+          if (pair.domain === value.domain && pair.range !== !value.range) {
+            if (
+              data[index].validity.status
+              && data[index].validity.reason === ''
+            ) {
+              data[index].validity.status = false;
+              data[index].validity.reason = reasonNotValid.fork;
+            }
+          }
+        }
+        return pair;
+      });
+    });
+  },
+  // Cycle inconsistency
+  checkForCycles(state, indexDictionary) {
+    const data = state.dictionaries[indexDictionary].content;
+
+    data.forEach((value) => {
+      state.dictionaries[indexDictionary].content = data.map((pair, index) => {
+        if (value.domain === pair.range && value.range === pair.domain) {
+          if (
+            data[index].validity.status
+              && data[index].validity.reason === ''
+          ) {
+            data[index].validity.status = false;
+            data[index].validity.reason = reasonNotValid.cycle;
+          }
+        }
+        return pair;
+      });
+    });
+  },
+  // Chain inconsistency
+  checkForChains(dictionaryData) {
+    const data = dictionaryData;
+
+    data.forEach((value) => {
+      state.dictionaries[indexDictionary].content = data.map((pair, index) => {
+        if (value.range === pair.domain && value.domain !== pair.range) {
+          if (
+            data[index].validity.status
+          && data[index].validity.reason === ''
+          ) {
+            data[index].validity.status = false;
+            data[index].validity.reason = reasonNotValid.chain;
+          }
+        }
+        return pair;
+      });
+    });
+  },
+  // Set all the pairs to valid and remove warning messages
+  resetValidity(state, indexDictionary) {
+    const data = state.dictionaries[indexDictionary].content;
+
+    data.forEach((value, index) => {
+      data[index].validity.status = true;
+      data[index].validity.reason = '';
+    });
+
+    return data;
   },
 };
