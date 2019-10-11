@@ -8,6 +8,8 @@ const reasonNotValid = {
   chain: 'Chain',
 };
 
+// Create state (Vuex)
+// and store some initial data to test the app
 export const state = () => ({
   dictionaries: [
     {
