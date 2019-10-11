@@ -23,6 +23,7 @@
           :key="index"
           @click="select(index)"
         >
+          <!-- Display the list of dictionaries -->
           <a-icon type="database" />
           <span>{{ dictionary.name }}</span>
 
@@ -30,10 +31,11 @@
             <template slot="title">
               <span>Delete dictionary</span>
             </template>
+            <!-- Button to delete each dictionary -->
             <a-icon
               type="delete"
               theme="filled"
-              style="color: #ffffff99; float: right; margin-top: 14px;"
+              class="delete-dict-icon"
               @click="deleteObject(dictionary)"
             />
           </a-tooltip>
@@ -47,19 +49,28 @@
           :type="collapsed ? 'menu-unfold' : 'menu-fold'"
           @click="()=> collapsed = !collapsed"
         />
+        <!-- Load previously saved data -->
+        <a-button
+          icon="download"
+          size="large"
+          style="float:right; margin: 12px 12px 12px 6px;"
+          @click="loadData"
+        >
+          Load saved data
+        </a-button>
+        <!-- Display 'Save' button to store data in local storage -->
         <a-button
           icon="save"
           size="large"
-          style="float:right; margin: 16px;"
+          type="primary"
+          style="float:right; margin: 12px 6px 12px 12px;"
+          @click="saveData"
         >
           Save for later
         </a-button>
       </a-layout-header>
       <a-layout-content
-        style="margin: 24px auto;
-                   max-width: 1024px;
-                   box-sizing: content-box;
-                   display: inline-table;"
+        class="content-style"
         :style="{ padding: '24px', background: '#fff', minHeight: '180px', borderRadius: '15px'}"
       >
         <!-- Entry point to the Vue app with Nuxt -->
@@ -68,7 +79,8 @@
       <div class="center-flex">
         <CreateTableButton />
       </div>
-      <a-layout-footer style="text-align: center; margin-top: 180px;">
+      <!-- Footer -->
+      <a-layout-footer class="footer-style">
         Created by Carmine for OneDot, 2019 ©
       </a-layout-footer>
     </a-layout>
@@ -110,6 +122,12 @@ export default {
     select(index) {
       this.$store.commit('setIndexSelected', index);
     },
+    saveData() {
+      this.$store.commit('saveDataLocally');
+    },
+    loadData() {
+      this.$store.commit('retrieveLocalData');
+    },
   },
 };
 </script>
@@ -130,5 +148,23 @@ export default {
   height: 32px;
   background: rgba(255,255,255,.2);
   margin: 16px;
+}
+
+.content-style {
+  margin: 24px auto;
+  max-width: 1024px;
+  box-sizing: content-box;
+  display: inline-table;
+}
+
+.footer-style {
+  text-align: center;
+  margin-top: 180px;
+}
+
+.delete-dict-icon {
+  color: #ffffff99;
+  float: right;
+  margin-top: 14px;
 }
 </style>
