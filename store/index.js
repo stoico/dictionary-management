@@ -204,8 +204,8 @@ export const mutations = {
     // Create new pair (Object)
     const newPair = {
       key: uuid.v4(),
-      domain: domain,
-      range: range,
+      domain,
+      range,
       validity: { status: true, reason: '' },
     };
     // Retrive index of the desired dictionary
