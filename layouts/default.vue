@@ -1,5 +1,8 @@
 <template>
-  <a-layout id="components-layout-demo-custom-trigger">
+  <a-layout
+    id="components-layout-demo-custom-trigger"
+    style="height:100vh"
+  >
     <a-layout-sider
       v-model="collapsed"
       :trigger="null"
