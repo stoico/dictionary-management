@@ -88,4 +88,18 @@ export const mutations = {
       state.dictionaries = state.dictionaries.filter((element) => dictionary !== element);
     }
   },
+  addNewPairToDictionary(state, { dictionary, domain, range }) {
+    // Create new pair (Object)
+    const newPair = {
+      key: uuid.v4(),
+      domain: domain,
+      range: range,
+      validity: { status: true, reason: '' },
+    };
+    // Retrive index of the desired dictionary
+    const index = state.dictionaries.indexOf(dictionary);
+
+    // Add new object into the array with ES6's spread syntax
+    state.dictionaries[index].content = [...state.dictionaries[index].content, newPair];
+  },
 };
