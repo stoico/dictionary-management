@@ -312,8 +312,8 @@ export const mutations = {
     });
   },
   // Chain inconsistency
-  checkForChains(dictionaryData) {
-    const data = dictionaryData;
+  checkForChains(state, indexDictionary) {
+    const data = state.dictionaries[indexDictionary].content;
 
     data.forEach((value) => {
       state.dictionaries[indexDictionary].content = data.map((pair, index) => {
