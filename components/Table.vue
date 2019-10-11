@@ -195,16 +195,9 @@ export default {
       }
       return 'valid-message';
     },
-    // dataSource() {
-    //   return this.dictionariesFromStore[0].content;
-    // },
   },
   watch: {
     // Make validity checks run at every change in the dictionary.
-    // selectedDictionary() {
-    // TO FIX: INFINITE LOOP 
-    //   this.runAllValidityChecks();
-    // },
     selectedIndex() {
       this.runAllValidityChecks();
     },
@@ -238,16 +231,18 @@ export default {
       this.runAllValidityChecks();
     },
     runAllValidityChecks() {
-      // Change the order to establish which validity error needs to be marked (first)
-
+      
       // reset validity before running the checks
       this.$store.commit('resetValidity', this.$store.state.indexOfSelected);
 
       // Check for duplicates, forks, cycles, chains
+      //
+      // Priority: [First] Chains -> Cycles -> Forks -> Duplicates [Last]
+      // Change the order to establish which validity error needs to be marked first
+      this.$store.commit('checkForChains', this.$store.state.indexOfSelected);
+      this.$store.commit('checkForCycles', this.$store.state.indexOfSelected);
       this.$store.commit('checkForDuplicates', this.$store.state.indexOfSelected);
       this.$store.commit('checkForForks', this.$store.state.indexOfSelected);
-      this.$store.commit('checkForCycles', this.$store.state.indexOfSelected);
-      this.$store.commit('checkForChains', this.$store.state.indexOfSelected);
     },
   },
   // mounted() {
