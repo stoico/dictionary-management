@@ -83,4 +83,9 @@ export const mutations = {
     };
     state.dictionaries.push(newDictionary);
   },
+  deleteDictionary(state, dictionary) {
+    if (state.dictionaries.length > 1) {
+      state.dictionaries = state.dictionaries.filter((element) => dictionary !== element);
+    }
+  },
 };
