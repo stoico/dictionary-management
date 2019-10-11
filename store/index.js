@@ -102,4 +102,8 @@ export const mutations = {
     // Add new object into the array with ES6's spread syntax
     state.dictionaries[index].content = [...state.dictionaries[index].content, newPair];
   },
+  deletePairFromDictionary(state, { index, key }) {
+    const data = [...state.dictionaries[index].content];
+    state.dictionaries[index].content = data.filter((item) => item.key !== key);
+  },
 };
