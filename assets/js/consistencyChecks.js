@@ -1,3 +1,4 @@
+// Define strings for the warning messages in case of an inconsistency
 const reasonNotValid = {
   duplicate: 'Duplicate',
   fork: 'Fork',
@@ -114,6 +115,7 @@ export function checkForChains(dictionaryData) {
   return data;
 }
 
+// Set all the pairs to valid and remove warning messages
 export function resetValidity(dictionaryData) {
   const data = dictionaryData;
 
