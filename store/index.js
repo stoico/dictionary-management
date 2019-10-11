@@ -13,6 +13,59 @@ const reasonNotValid = {
 export const state = () => ({
   dictionaries: [
     {
+      name: 'Materials',
+      content: [
+        {
+          domain: 'Stonegrey',
+          range: 'Concrete',
+          validity: { status: true, reason: '' },
+          key: uuid.v4(),
+        },
+        {
+          domain: 'Smooth Paper',
+          range: 'Paper',
+          validity: { status: true, reason: '' },
+          key: uuid.v4(),
+        },
+        {
+          domain: 'Stonegrey',
+          range: 'Metal',
+          validity: { status: true, reason: '' },
+          key: uuid.v4(),
+        },
+        {
+          domain: 'Low Carbon Steel',
+          range: 'Steel',
+          validity: { status: true, reason: '' },
+          key: uuid.v4(),
+        },
+        {
+          domain: 'Steel',
+          range: 'Low Carbon Steel',
+          validity: { status: true, reason: '' },
+          key: uuid.v4(),
+        },
+        {
+          domain: 'Laminated Glass',
+          range: 'Glass',
+          validity: { status: true, reason: '' },
+          key: uuid.v4(),
+        },
+        {
+          domain: 'Oak',
+          range: 'Wood',
+          validity: { status: true, reason: '' },
+          key: uuid.v4(),
+        },
+        {
+          domain: 'Oak',
+          range: 'Wood',
+          validity: { status: true, reason: '' },
+          key: uuid.v4(),
+        },
+      ],
+    },
+    {
       name: 'Colors',
       content: [
         {
@@ -36,29 +89,6 @@ export const state = () => ({
         {
           domain: 'Mystic Silver',
           range: 'Silver',
-          validity: { status: true, reason: '' },
-          key: uuid.v4(),
-        },
-      ],
-    },
-    {
-      name: 'Materials',
-      content: [
-        {
-          domain: 'Stonegrey',
-          range: 'Dark Grey',
-          validity: { status: true, reason: '' },
-          key: uuid.v4(),
-        },
-        {
-          domain: 'Stonegrey',
-          range: 'Anthracite',
-          validity: { status: true, reason: '' },
-          key: uuid.v4(),
-        },
-        {
-          domain: 'Dark Grey',
-          range: 'Stonegrey',
           validity: { status: true, reason: '' },
           key: uuid.v4(),
         },
@@ -94,55 +124,8 @@ export const state = () => ({
       ],
     },
     {
-      name: 'More materials',
-      content: [
-        {
-          domain: 'Stonegrey',
-          range: 'Dark Grey',
-          validity: { status: true, reason: '' },
-          key: 0,
-        },
-        {
-          domain: 'Midnight Black',
-          range: 'Black',
-          validity: { status: true, reason: '' },
-          key: 1,
-        },
-        {
-          domain: 'Mystic Silver',
-          range: 'Silver',
-          validity: { status: true, reason: '' },
-          key: 2,
-        },
-        {
-          domain: 'Stonegrey',
-          range: 'Dark Grey',
-          validity: { status: true, reason: '' },
-          key: 3,
-        },
-        {
-          domain: 'Stonegrey',
-          range: 'Anthracite',
-          validity: { status: true, reason: '' },
-          key: 4,
-        },
-        {
-          domain: 'Dark Grey',
-          range: 'Stonegrey',
-          validity: { status: true, reason: '' },
-          key: 5,
-        },
-      ],
-    },
-    {
       name: 'Letters',
       content: [
-        {
-          domain: 'A',
-          range: 'B',
-          validity: { status: true, reason: '' },
-          key: uuid.v4(),
-        },
         {
           domain: 'A',
           range: 'B',
@@ -156,14 +139,14 @@ export const state = () => ({
           key: uuid.v4(),
         },
         {
-          domain: 'E',
-          range: 'F',
+          domain: 'A',
+          range: 'B',
           validity: { status: true, reason: '' },
           key: uuid.v4(),
         },
         {
-          domain: 'F',
-          range: 'E',
+          domain: 'E',
+          range: 'F',
           validity: { status: true, reason: '' },
           key: uuid.v4(),
         },
@@ -222,7 +205,9 @@ export const mutations = {
     const index = state.dictionaries.indexOf(dictionary);
 
     // Add new object into the array with ES6's spread syntax
-    state.dictionaries[index].content = [...state.dictionaries[index].content, newPair];
+    if (state.dictionaries[index].content) {
+      state.dictionaries[index].content = [...state.dictionaries[index].content, newPair];
+    }
   },
   deletePairFromDictionary(state, { index, key }) {
     const data = [...state.dictionaries[index].content];
