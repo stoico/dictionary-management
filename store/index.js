@@ -301,15 +301,15 @@ export const mutations = {
     data.forEach((value) => {
       state.dictionaries[indexDictionary].content = data.map((pair, index) => {
         if (data.indexOf(pair) !== data.indexOf(value)) {
-        if (value.domain === pair.range && value.range === pair.domain) {
-          if (
-            data[index].validity.status
+          if (value.domain === pair.range && value.range === pair.domain) {
+            if (
+              data[index].validity.status
               && data[index].validity.reason === ''
-          ) {
-            data[index].validity.status = false;
-            data[index].validity.reason = reasonNotValid.cycle;
+            ) {
+              data[index].validity.status = false;
+              data[index].validity.reason = reasonNotValid.cycle;
+            }
           }
-        }
         }
         return pair;
       });
@@ -344,5 +344,15 @@ export const mutations = {
     });
 
     return data;
+  },
+  saveDataLocally(state) {
+    console.log(JSON.stringify(state.dictionaries));
+    localStorage.setItem('dictionaries', JSON.stringify(state.dictionaries));
+  },
+  retrieveLocalData(state) {
+    const retrievedData = localStorage.getItem('dictionaries');
+    state.dictionaries = JSON.parse(retrievedData);
+
+    console.log('retrievedData: ', JSON.parse(retrievedData));
   },
 };
