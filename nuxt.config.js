@@ -38,6 +38,12 @@ export default {
     '@/plugins/antd-ui',
   ],
   /*
+   ** Custom folder for the generated static files
+   */
+  generate: {
+    dir: 'docs',
+  },
+  /*
   ** Nuxt.js dev-modules
   */
   buildModules: [
