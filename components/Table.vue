@@ -200,8 +200,8 @@ export default {
       //
       // Priority: [First] Chains -> Cycles -> Forks -> Duplicates [Last]
       // Change the order to establish which validity error needs to be marked first
-      this.$store.commit('checkForChains', this.$store.state.indexOfSelected);
       this.$store.commit('checkForCycles', this.$store.state.indexOfSelected);
+      this.$store.commit('checkForChains', this.$store.state.indexOfSelected);
       this.$store.commit('checkForDuplicates', this.$store.state.indexOfSelected);
       this.$store.commit('checkForForks', this.$store.state.indexOfSelected);
     },
