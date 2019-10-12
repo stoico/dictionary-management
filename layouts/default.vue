@@ -123,9 +123,11 @@ export default {
     },
     saveData() {
       this.$store.commit('saveDataLocally');
+      this.$message.success('Dictionaries saved');
     },
     loadData() {
       this.$store.commit('retrieveLocalData');
+      this.$message.success('Data loaded successfully');
     },
   },
 };
