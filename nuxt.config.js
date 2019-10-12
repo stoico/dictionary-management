@@ -1,3 +1,9 @@
+// only add `router.base = '/<repository-name>/'` if `DEPLOY_ENV` is `GH_PAGES`
+const routerBase = process.env.DEPLOY_ENV === 'GH_PAGES' ? {
+  router: {
+    base: '/dictionary-management/',
+  },
+} : {};
 
 export default {
   mode: 'spa',
@@ -51,7 +57,5 @@ export default {
     extend(config, ctx) {
     },
   },
-  router: {
-    base: '/docs/',
-  },
+  ...routerBase,
 };
