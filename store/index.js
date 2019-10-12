@@ -306,7 +306,7 @@ export const mutations = {
 
     data.forEach((value) => {
       state.dictionaries[indexDictionary].content = data.map((pair, index) => {
-        if (value.range === pair.domain && value.domain !== pair.range) {
+        if (value.range === pair.domain || pair.range === value.domain) {
           if (
             data[index].validity.status
           && data[index].validity.reason === ''
