@@ -81,7 +81,7 @@
       </div>
       <!-- Footer -->
       <a-layout-footer class="footer-style">
-        Created by Carmine for OneDot, 2019 ©
+        Built by Carmine, 2019 ©
       </a-layout-footer>
     </a-layout>
   </a-layout>
