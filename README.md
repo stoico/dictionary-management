@@ -1,5 +1,8 @@
 # Dictionary Management - OneDot
 
+### Demo
+https://stoico.github.io/dictionary-management/
+
 # Tech stack
 - ES6
 - Vue.js
